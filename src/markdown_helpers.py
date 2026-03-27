@@ -1,5 +1,81 @@
+from __future__ import annotations
 from enum import Enum
 import re
+from leafnode import text_node_to_html_node
+from textnode import text_to_textnodes, TextNode, TextType
+from htmlnode import HTMLNode
+from parentnode import ParentNode
+
+
+def markdown_to_html_node(markdown: str):
+    markdown_blocks = markdown_to_blocks(markdown)
+    html_nodes = []
+    for block in markdown_blocks:
+        html_node = text_block_to_html_node(block)
+        html_nodes.append(html_node)
+
+    parent_html = ParentNode("div", html_nodes)
+    return parent_html
+
+
+def text_block_to_html_node(block: str):
+    block_type: BlockType = block_to_block_type(block)
+    match block_type:
+        case BlockType.PARAGRAPH:
+            return ParentNode("p", text_block_to_children(block.replace("\n", " ")))
+        case BlockType.HEADING:
+            heading_number = heading_block_to_heading_amount(block)
+            return ParentNode(
+                f"h{heading_number}",
+                text_block_to_children(block[heading_number + 1 :]),
+            )
+        case BlockType.CODE:
+            return ParentNode(
+                "pre",
+                [text_node_to_html_node(TextNode(block[3:-3].lstrip(), TextType.CODE))],
+            )
+        case BlockType.QUOTE:
+            quote_pattern = r"^> ?(.+)$"
+            quotes = re.findall(quote_pattern, block, re.MULTILINE)
+            quote = ""
+            for q in quotes:
+                quote += q + " "
+            quote = quote[:-1]
+            return ParentNode("blockquote", text_block_to_children(quote))
+        case BlockType.UNORDERED_LIST:
+            ul_children = []
+            unordered_item_pattern = r"^- (.+)$"
+            formatted = re.findall(unordered_item_pattern, block, re.MULTILINE)
+            for item in formatted:
+                item = item.strip()
+                ul_children.append(ParentNode("li", text_block_to_children(item)))
+            return ParentNode("ul", ul_children)
+        case BlockType.ORDERED_LIST:
+            ol_children = []
+            ordered_item_pattern = r"^\d+\. (.+)$"
+            formatted = re.findall(ordered_item_pattern, block, re.MULTILINE)
+            for item in formatted:
+                item = item.strip()
+                ol_children.append(ParentNode("li", text_block_to_children(item)))
+            return ParentNode("ol", ol_children)
+
+
+def text_block_to_children(block: str):
+    children = []
+    text_nodes = text_to_textnodes(block)
+    for text_node in text_nodes:
+        children.append(text_node_to_html_node(text_node))
+    return children
+
+
+def heading_block_to_heading_amount(heading_block: str):
+    heading_amount = 0
+    for i in range(0, 6):
+        if heading_block[i] == "#":
+            heading_amount += 1
+        else:
+            return heading_amount
+    return heading_amount
 
 
 class BlockType(Enum):

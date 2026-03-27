@@ -1,7 +1,6 @@
 from __future__ import annotations
 from enum import Enum
 import re
-from typing import Text
 
 
 class TextType(Enum):

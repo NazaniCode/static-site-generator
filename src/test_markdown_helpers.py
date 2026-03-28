@@ -88,6 +88,32 @@ this is paragraph text
             "<div><blockquote>This is a blockquote block</blockquote><p>this is paragraph text</p></div>",
         )
 
+    def test_blockquote_another(self):
+        md = """
+> "I am in fact a Hobbit in all but size."
+> -- J.R.R. Tolkien
+
+this is paragraph text
+
+"""
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            '<div><blockquote>"I am in fact a Hobbit in all but size." -- J.R.R. Tolkien</blockquote><p>this is paragraph text</p></div>',
+        )
+
+    def test_markdown_image_to_html(self):
+        md = """
+[Why Glorfindel is More Impressive than Legolas](/blog/glorfindel)
+"""
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            '<div><p><a href="/blog/glorfindel">Why Glorfindel is More Impressive than Legolas</a></p></div>',
+        )
+
     def test_codeblock(self):
         md = """
 ```

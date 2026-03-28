@@ -46,7 +46,7 @@ def text_to_textnodes(text: str):
 
 def extract_markdown_images(text: str):
     images_list = []
-    matches = re.findall(r"!\[([^\]]*)\]\((https?://[^\)]+)\)", text)
+    matches = re.findall(r"!\[([^\]]*)\]\(([^\)]+)\)", text)
 
     for alt, url in matches:
         images_list.append((alt, url))
@@ -56,7 +56,7 @@ def extract_markdown_images(text: str):
 
 def extract_markdown_links(text: str):
     link_list = []
-    matches = re.findall(r"(?<!!)\[([^\]]*)\]\((https?://[^\)]+)\)", text)
+    matches = re.findall(r"(?<!!)\[([^\]]*)\]\(([^\)]+)\)", text)
 
     for anchor, url in matches:
         link_list.append((anchor, url))

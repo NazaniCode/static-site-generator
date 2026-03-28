@@ -180,6 +180,23 @@ class TestTextNode(unittest.TestCase):
             new_nodes,
         )
 
+    def test_split_links_only(self):
+        node = TextNode(
+            "[Why Glorfindel is More Impressive than Legolas](/blog/glorfindel)",
+            TextType.TEXT,
+        )
+        new_nodes = split_nodes_link([node])
+        self.assertListEqual(
+            [
+                TextNode(
+                    "Why Glorfindel is More Impressive than Legolas",
+                    TextType.LINK,
+                    "/blog/glorfindel",
+                ),
+            ],
+            new_nodes,
+        )
+
     def test_text_to_textnodes(self):
         new_nodes = text_to_textnodes(
             "This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"

@@ -89,8 +89,8 @@ class BlockType(Enum):
 
 heading_pattern = r"^(#{1,6}) (.+)"
 code_pattern = r"^```\n[\s\S]*\n```$"
-quote_pattern = r"^(> ?.+\n?)+$"
 unordered_pattern = r"^(- .+\n?)+$"
+quote_pattern = r"^(> ?.*\n?)+$"
 ordered_pattern = r"^((\d+)\. .+\n?)+$"
 
 
@@ -106,6 +106,22 @@ def block_to_block_type(block: str):
     if is_ordered_list(block):
         return BlockType.ORDERED_LIST
     return BlockType.PARAGRAPH
+
+
+def extract_title(markdown: str):
+    markdown_blocks = markdown_to_blocks(markdown)
+    if len(markdown_blocks) is 0:
+        raise ValueError("markdown was empty")
+    heading_block = markdown_to_blocks(markdown)[0]
+    if block_to_block_type(heading_block) is not BlockType.HEADING:
+        raise ValueError(
+            f"Markdown {heading_block[0:10]}... did not start with a heading"
+        )
+    if heading_block_to_heading_amount(heading_block) > 1:
+        raise ValueError(
+            f"Markdown {heading_block[0:10]}... started with a header but not an h1"
+        )
+    return heading_block[2:].strip()
 
 
 def is_ordered_list(text):
